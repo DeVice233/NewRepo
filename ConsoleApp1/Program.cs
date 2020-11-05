@@ -11,32 +11,35 @@ namespace ConsoleApp1
         public string Name;
         public DateTime Birthday;
         public byte _hungryStatus;
+        public event EventHandler HungryStatusChanged;
         public byte HungryStatus
         {
-           get
-           {
-               return _hungryStatus;
-           }
-
-           set
-           {
-                if (value < 0) { value = 0; }
+            get
+            {
+                return _hungryStatus;
+            }
+            set
+            {
+                byte a = 0;
+                a = value;
+                if (value < 0) {value = 0;}
                 if (value > 100) { value = 100; }
+                if (a != value) { HungryStatusChanged?.Invoke(this, null); }
                 _hungryStatus = value;
-           }
+            }
         }
         public Cat(string name, DateTime birthday, byte _hungryStatus) { Name = name; Birthday = birthday; HungryStatus = _hungryStatus; Task.Run(LifeCircle); }
         public void GetAge()
         {
             int a;
             a = DateTime.Now.Year - Birthday.Year;
-            Console.WriteLine($"Возраст: {a}") ;  
+            Console.WriteLine($"Возраст: {a}");
         }
         public void GetStatus()
         {
             Console.WriteLine(Name);
             GetAge();
-            if (HungryStatus<=10)
+            if (HungryStatus <= 10)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Кошка умирает от голода");
@@ -71,8 +74,11 @@ namespace ConsoleApp1
         {
             await Task.Delay(10000);
             HungryStatus -= 10;
-            GetStatus();
             await LifeCircle();
+        }
+        public void Feed()
+        {
+            HungryStatus = 100;
         }
     }
     class Program
@@ -81,7 +87,22 @@ namespace ConsoleApp1
         {
             Cat Barsik = new Cat("Барсик",new DateTime(2015, 7, 20),150);
             Barsik.GetStatus();
+            Barsik.HungryStatusChanged += HungryStatusChanged;
+            Cat Matroskin = new Cat("Матроскин", new DateTime(2012, 8, 23),150);
+            Matroskin.GetStatus();
+            Matroskin.HungryStatusChanged += HungryStatusChanged;
             Console.ReadLine();
         }
+        private static void HungryStatusChanged(object sender, EventArgs e)
+        {
+            Random rnd = new Random();
+            Cat cat = (Cat)sender;
+            if (cat.HungryStatus < 20 && rnd.Next(0, 10) < 5)
+                cat.Feed();
+            else
+                cat.GetStatus();
+            throw new NotImplementedException();
+        }
+
     }
 }
