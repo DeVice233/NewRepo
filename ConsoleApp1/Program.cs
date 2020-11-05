@@ -87,13 +87,25 @@ namespace ConsoleApp1
         {
             Cat Barsik = new Cat("Барсик",new DateTime(2015, 7, 20),150);
             Barsik.GetStatus();
-            Barsik.HungryStatusChanged += HungryStatusChanged;
+            Barsik.HungryStatusChanged += Barsik_HungryStatusChanged;
             Cat Matroskin = new Cat("Матроскин", new DateTime(2012, 8, 23),150);
             Matroskin.GetStatus();
-            Matroskin.HungryStatusChanged += HungryStatusChanged;
+            Matroskin.HungryStatusChanged += Matroskin_HungryStatusChanged;
             Console.ReadLine();
         }
-        private static void HungryStatusChanged(object sender, EventArgs e)
+
+        private static void Matroskin_HungryStatusChanged(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+            Random rnd = new Random();
+            Cat cat = (Cat)sender;
+            if (cat.HungryStatus < 20 && rnd.Next(0, 10) < 5)
+                cat.Feed();
+            else
+                cat.GetStatus();
+        }
+
+        private static void Barsik_HungryStatusChanged(object sender, EventArgs e)
         {
             Random rnd = new Random();
             Cat cat = (Cat)sender;
