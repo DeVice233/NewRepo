@@ -96,13 +96,13 @@ namespace ConsoleApp1
 
         private static void Matroskin_HungryStatusChanged(object sender, EventArgs e)
         {
-            throw new NotImplementedException();
             Random rnd = new Random();
             Cat cat = (Cat)sender;
             if (cat.HungryStatus < 20 && rnd.Next(0, 10) < 5)
                 cat.Feed();
             else
                 cat.GetStatus();
+            throw new NotImplementedException();
         }
 
         private static void Barsik_HungryStatusChanged(object sender, EventArgs e)
