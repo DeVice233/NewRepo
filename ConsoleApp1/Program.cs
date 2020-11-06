@@ -2,6 +2,7 @@
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Threading;
+using System.Collections.Generic;
 
 
 namespace ConsoleApp1
@@ -76,9 +77,37 @@ namespace ConsoleApp1
             HungryStatus -= 10;
             await LifeCircle();
         }
-        public void Feed()
+        public void Feed(byte feed = 50)
         {
-            HungryStatus = 100;
+            HungryStatus += feed;
+        }
+    }
+    class CatSmartHouse
+    {
+        public int FoodResource;
+        public List<Cat> cats = new List<Cat>();
+        public CatSmartHouse(int foodResource) { FoodResource = foodResource; }
+        public void AddCat(Cat cat)
+        {
+            cats.Add(cat);
+            cat.HungryStatusChanged += Cat_HungryStatusChanged;
+        }
+        private void Cat_HungryStatusChanged(object sender, EventArgs e)
+        {
+            var cat = (Cat)sender;
+            if (cat.HungryStatus <= 20 && FoodResource > 0)
+            {
+                byte needFood = (byte)(100 - cat.HungryStatus);
+                if (FoodResource > needFood)
+                    FoodResource -= needFood;
+                else
+                {
+                    needFood = (byte)FoodResource;
+                    FoodResource = 0;
+                }
+                cat.Feed(needFood);
+                Console.WriteLine($"Покормлена кошка: {cat.Name}\nОстаток еды в вольере: {FoodResource}");
+            }
         }
     }
     class Program
@@ -87,34 +116,12 @@ namespace ConsoleApp1
         {
             Cat Barsik = new Cat("Барсик",new DateTime(2015, 7, 20),150);
             Barsik.GetStatus();
-            Barsik.HungryStatusChanged += Barsik_HungryStatusChanged;
             Cat Matroskin = new Cat("Матроскин", new DateTime(2012, 8, 23),150);
             Matroskin.GetStatus();
-            Matroskin.HungryStatusChanged += Matroskin_HungryStatusChanged;
+            CatSmartHouse cat = new CatSmartHouse(200);
+            cat.AddCat(Barsik);
+            cat.AddCat(Matroskin);
             Console.ReadLine();
         }
-
-        private static void Matroskin_HungryStatusChanged(object sender, EventArgs e)
-        {
-            Random rnd = new Random();
-            Cat cat = (Cat)sender;
-            if (cat.HungryStatus < 20 && rnd.Next(0, 10) < 5)
-                cat.Feed();
-            else
-                cat.GetStatus();
-            throw new NotImplementedException();
-        }
-
-        private static void Barsik_HungryStatusChanged(object sender, EventArgs e)
-        {
-            Random rnd = new Random();
-            Cat cat = (Cat)sender;
-            if (cat.HungryStatus < 20 && rnd.Next(0, 10) < 5)
-                cat.Feed();
-            else
-                cat.GetStatus();
-            throw new NotImplementedException();
-        }
-
     }
 }
