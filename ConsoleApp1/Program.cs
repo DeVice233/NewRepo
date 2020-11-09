@@ -3,7 +3,9 @@ using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Generic;
-
+using System.Drawing;
+using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography;
 
 namespace ConsoleApp1
 {
@@ -34,42 +36,40 @@ namespace ConsoleApp1
         {
             int a;
             a = DateTime.Now.Year - Birthday.Year;
-            Console.WriteLine($"Возраст: {a}");
         }
-        public void GetStatus()
+        public string GetStatus()
         {
-            Console.WriteLine(Name);
-            GetAge();
+            int BirthDay;
+            BirthDay = DateTime.Now.Year - Birthday.Year;
+            string col = null;
+            string s1 = null;
             if (HungryStatus <= 10)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Кошка умирает от голода");
-                Console.ResetColor();
+                col = "1";
+                s1 = "Кошка умирает от голода";
             }
             if (HungryStatus > 10 & HungryStatus <= 40)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("Кошка очень голодна");
-                Console.ResetColor();
+                 col = "1";
+                s1 = "Кошка очень голодна";
             }
             if (HungryStatus > 40 & HungryStatus <= 70)
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Кошка хочет кушать");
-                Console.ResetColor();
+                col = "2";
+                s1 = "Кошка хочет кушать";
             }
             if (HungryStatus > 70 & HungryStatus <= 90)
             {
-                Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("Кошка не против перекусить");
-                Console.ResetColor();
+               col = "2";
+                s1 = "Кошка не против перекусить";
             }
             if (HungryStatus > 90)
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Кошка недавно поела");
-                Console.ResetColor();
+                col = "3";
+                s1 = "Кошка недавно поела";
             }
+            string status = col + " " + Name + " " + BirthDay + " " + s1;
+            return status;
         }
         async Task LifeCircle()
         {
@@ -106,7 +106,36 @@ namespace ConsoleApp1
                     FoodResource = 0;
                 }
                 cat.Feed(needFood);
-                Console.WriteLine($"Покормлена кошка: {cat.Name}\nОстаток еды в вольере: {FoodResource}");
+                PrintStatus();
+            }
+        }
+        public void PrintStatus()
+        {
+            int leftPosition = Console.CursorLeft;
+            int topPosition = Console.CursorTop;
+            for (int i = 0;i <cats.Count; ++i)
+            {
+                string message = cats[i].GetStatus();
+                string color = message.Substring(0, 1);
+                color = color.Replace(" ", "");
+                int coloR = Convert.ToInt32(color);
+                Console.SetCursorPosition(0, i);
+                if (coloR == 3) {Console.ForegroundColor = ConsoleColor.Green;}
+                if (coloR == 2) { Console.ForegroundColor = ConsoleColor.Yellow;}
+                if (coloR == 1) { Console.ForegroundColor = ConsoleColor.Red; }
+                Console.Write(message.Substring(2, message.Length));
+                message = message.PadRight(50);
+                Console.ResetColor();
+            }
+            Console.SetCursorPosition(0, cats.Count);
+            Console.Write(FoodResource);
+            Console.SetCursorPosition(leftPosition, topPosition);
+        }
+        public int CatsCount
+        {
+            get
+            {
+                return cats.Count;
             }
         }
     }
@@ -118,9 +147,10 @@ namespace ConsoleApp1
             Barsik.GetStatus();
             Cat Matroskin = new Cat("Матроскин", new DateTime(2012, 8, 23),150);
             Matroskin.GetStatus();
-            CatSmartHouse cat = new CatSmartHouse(200);
+            CatSmartHouse cat = new CatSmartHouse(300);
             cat.AddCat(Barsik);
             cat.AddCat(Matroskin);
+            Console.SetCursorPosition(1,2 + 1) ;
             Console.ReadLine();
         }
     }
